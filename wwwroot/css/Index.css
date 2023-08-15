@@ -1,0 +1,15 @@
+﻿.text-center {
+    display: flex;
+    flex-direction: column;
+}
+.text-center button {
+    width: 50vw;
+    margin: auto;
+    border: 1px solid grey;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px 0 #dcdee0;
+}
+.text-center textarea {
+    margin: 5vw;
+    min-height:40vh;
+}
