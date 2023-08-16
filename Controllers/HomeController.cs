@@ -17,7 +17,8 @@ namespace TestTask.Controllers
         private const int MAX_MESSAGES_PER_USER = 10;
         private const int MAX_MESSAGES = 20;
 
-        private static readonly Dictionary<string, int> messagesPerUserCout = new Dictionary<string, int>();
+        //save user Id and number of posted messages
+        private static readonly Dictionary<string, int> messagesPerUser = new Dictionary<string, int>();
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -27,7 +28,7 @@ namespace TestTask.Controllers
         public IActionResult Index()
         {
             string userToken = Guid.NewGuid().ToString();
-            messagesPerUserCout[userToken] = 0;
+            messagesPerUser[userToken] = 0;
             Response.Cookies.Append("UserToken", userToken);
             return View();
         }
@@ -42,56 +43,56 @@ namespace TestTask.Controllers
                 message.Text = text;
                 message.UserId = userToken;
                 message.Timestamp = DateTime.UtcNow;
-                if (messagesPerUserCout[userToken] == MAX_MESSAGES_PER_USER)
+                if (messagesPerUser[userToken] == MAX_MESSAGES_PER_USER)
                 {
                     //delete first message of curent user
                     Message toDelete = messages.First(message => message.UserId == userToken);
                     messages.Remove(toDelete);
+                    messagesPerUser[userToken] -= 1;
                 }
                 if (messages.Count == MAX_MESSAGES)
                 {
                     //delete first element to have least then 20 messages of all users
                     messages.RemoveAt(0);
                 }
-                messagesPerUserCout[userToken] += 1;
+                messagesPerUser[userToken] += 1;
                 messages.Add(message);
                 return StatusCode(200);
             }
             return StatusCode(400);            
         }
 
-        public IActionResult ShowCurentUserMessages()
+        [HttpGet]
+        public IActionResult ShowCurentUserMessages(string userToken)
         {
-            string userToken = Request.Cookies["UserToken"];//mb change to session
-            ViewBag.Messages = messages.Where(message => message.UserId == userToken).ToArray();
-            return View();
-            
+            return Json(messages.Where(message => message.UserId == userToken).ToArray());
+
         }
 
+        [HttpGet]
         public IActionResult ShowAllUsersMessages(string sortBy, string order)
         {
             if (sortBy == "time") {
                 if (order == "acs")
                 {
-                    ViewBag.Messages = messages.OrderBy(message => message.Timestamp).ToArray();
+                    return Json(messages.OrderBy(message => message.Timestamp).ToArray());
                 }
                 else
                 {
-                    ViewBag.Messages = messages.OrderByDescending(message => message.Timestamp).ToArray();
+                    return Json(messages.OrderByDescending(message => message.Timestamp).ToArray());
                 }
             }
             else
             {
                 if (order == "acs")
                 {
-                    ViewBag.Messages = messages.OrderBy(message => message.Id).ToArray();
+                    return Json(messages.OrderBy(message => message.Id).ToArray());
                 }
                 else
                 {
-                    ViewBag.Messages = messages.OrderByDescending(message => message.Id).ToArray();
+                    return Json(messages.OrderByDescending(message => message.Id).ToArray());
                 }
             }
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -37,3 +37,17 @@
     z-index: 2;
     width: 20vw;
 }
+.clickable{
+    cursor:pointer;
+    transition:0.5s;
+}
+.selected{
+    transform: scale(1.2);
+    color:#4CAF50;
+}
+#all-messages{
+    margin-top:10vh;
+}
+.hidden{
+    display:none;
+}
